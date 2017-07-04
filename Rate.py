@@ -82,16 +82,25 @@ class EloCalc(object):
     def calc_ratings(self, rating_DB):
         #this is a little slow, could maybe speed up with database tricks
         matches = rating_DB.GetMatches() #need to avoid previously rated matches!
+        #rating_DB.BeginTransaction()
         for match in matches:
-            #match = (Winner_ID, Loser_ID, Date, Round (fake), MOV (margin of victory)
-            winner_rating = rating_DB.GetLatestEloRating(match[0])
-            loser_rating = rating_DB.GetLatestEloRating(match[1])
-            #mov = match[4]
-            winner_rating, loser_rating = self.rate_1vs1(winner_rating,
-                                                         loser_rating,
-                                                         match[4])
-            rating_DB.SetEloRating(match[0], match[2], match[3], winner_rating)
-            rating_DB.SetEloRating(match[1], match[2], match[3], loser_rating)
+            dtmatch=datetime.strptime(match[2], '%Y-%m-%d')
+            # enforce causality: we don't want to rate games from the past
+            if datetime.strptime(rating_DB.GetLatestEloDate(match[0]),
+                                 '%Y-%m-%d') <= dtmatch and \
+                            datetime.strptime(
+                                rating_DB.GetLatestEloDate(match[1]),
+                                  '%Y-%m-%d') <= dtmatch:
+                #match = (Winner_ID, Loser_ID, Date, Round (fake), MOV (margin of victory)
+                winner_rating = rating_DB.GetLatestEloRating(match[0])
+                loser_rating = rating_DB.GetLatestEloRating(match[1])
+                #mov = match[4]
+                winner_rating, loser_rating = self.rate_1vs1(winner_rating,
+                                                             loser_rating,
+                                                             match[4])
+                rating_DB.SetEloRating(match[0], match[2], match[3], winner_rating)
+                rating_DB.SetEloRating(match[1], match[2], match[3], loser_rating)
+        #rating_DB.EndTransaction()
 
 
     def calc_matches(self, matches):

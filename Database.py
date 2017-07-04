@@ -180,6 +180,7 @@ class ratingDB(object):
         self.conn = sqlite3.connect(self.database_name)
         self.c = self.conn.cursor()
         self.EloStartingRating = EloStartingRating
+        self.EloStartingDate = '0001-01-1'
         self.BayesStartingRating = BayesStartingRating
         self.BayesStartingStd = BayesStartingStd
 
@@ -218,6 +219,12 @@ class ratingDB(object):
         self.BayesRatings2DB()
         self.Matches2DB()
 
+
+    #def BeginTransaction(self):
+    #    self.c.execute("BEGIN TRANSACTION")
+
+    #def EndTransaction(self):
+    #    self.c.execute("END TRANSACTION")
 
     def Matches2DB(self, matches=None):
         #matches is nx4
@@ -324,24 +331,37 @@ class ratingDB(object):
         return self.EloStartingRating if rating is None else rating
 
     def GetLatestEloRating(self, Player_ID):
-        try:
-            self.c.execute("SELECT "
-                           "Rating "
-                           "FROM Elo_Ratings "
-                           "WHERE Player_ID IN {} "
-                           "ORDER BY date(Date) DESC, Round DESC, ID DESC "
-                           "LIMIT 1"
-                           "".format(tuple(Player_ID)))
-        except TypeError:
-            self.c.execute("SELECT "
-                           "Rating "
-                           "FROM Elo_Ratings "
-                           "WHERE Player_ID={} "
-                           "ORDER BY date(Date) DESC, Round DESC, ID DESC "
-                           "LIMIT 1"
-                           "".format(Player_ID))
+        self.c.execute("SELECT "
+                       "Rating "
+                       "FROM Elo_Ratings "
+                       "WHERE Player_ID={} "
+                       "ORDER BY date(Date) DESC, Round DESC, ID DESC "
+                       "LIMIT 1"
+                       "".format(Player_ID))
         rating = self.c.fetchone()
         return self.EloStartingRating if rating is None else rating[0]
+
+    def GetLatestEloRatings(self, Player_ID):
+        self.c.execute("SELECT "
+                       "Rating "
+                       "FROM Elo_Ratings "
+                       "WHERE Player_ID IN {} "
+                       "ORDER BY date(Date) DESC, Round DESC, ID DESC "
+                       "LIMIT 1"
+                       "".format(tuple(Player_ID)))
+        rating = self.c.fetchone()
+        return self.EloStartingRating if rating is None else rating[0]
+
+    def GetLatestEloDate(self, Player_ID):
+        self.c.execute("SELECT "
+                       "Date "
+                       "FROM Elo_Ratings "
+                       "WHERE Player_ID={} "
+                       "ORDER BY date(Date) DESC, Round DESC, ID DESC "
+                       "LIMIT 1"
+                       "".format(Player_ID))
+        date = self.c.fetchone()
+        return self.EloStartingDate if date is None else date[0]
 
 
     def GetBayesRating(self, Player_ID, Date=None):
