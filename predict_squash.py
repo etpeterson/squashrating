@@ -721,7 +721,8 @@ rating_DB = ratingDB(matches=paired_query.matches, database_name=ratingdb_fname)
 elo.calc_ratings(rating_DB)
 rating_DB.PlotElo(player_plot_IDs, player_names=name_dict)
 pl.show()
-
+rating_DB.Close()
+print('Elo done')
 
 #game permutations and indicies
 #tuple(map('{0:02b}'.format,range(4)))

@@ -100,6 +100,7 @@ class EloCalc(object):
                                                              match[4])
                 rating_DB.SetEloRating(match[0], match[2], match[3], winner_rating)
                 rating_DB.SetEloRating(match[1], match[2], match[3], loser_rating)
+        rating_DB.Commit()
         #rating_DB.EndTransaction()
 
 

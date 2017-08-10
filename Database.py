@@ -424,5 +424,11 @@ class ratingDB(object):
         ax.set_position([box.x0, box.y0, box.width * 0.8, box.height])
         pl.legend(loc='center left', bbox_to_anchor=(1, 0.5))
 
+    def Commit(self):
+        self.conn.commit()
+
+    def Close(self):
+        self.c.close()
+
 
         #TODO: make sure all the players who played matches are added with default values!
