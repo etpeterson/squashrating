@@ -16,7 +16,8 @@ from pandas import DataFrame, Series
 #from functools import partial
 import matplotlib.pyplot as pl
 from Rate import EloCalc, BayesCalc
-from Database import DBQuery, ratingDB
+from Database import DBQuery, ratingDB, query_player_ID_fast, \
+    query_function_fast, fast_colnames
 
 
 #possible rounds:
@@ -378,6 +379,7 @@ class AGACalc(object):
 elo = EloCalc(mov_thresh=1)
 bayes = BayesCalc()
 
+"""
 #returns: all player IDs that are not NULL
 all_player_ID_query_str = "SELECT Player_ID FROM Player " \
                                "WHERE Male IS NOT NULL " \
@@ -583,7 +585,7 @@ def query_function_fast(c, player_pair):
     else:
         return (None, None)
 
-
+"""
 # add an elo processing module here to generate past and current elo ratings
 
 
@@ -643,6 +645,7 @@ class SquashPredict(object):
 conn = sqlite3.connect(str(sys.argv[1]))
 c = conn.cursor()
 
+"""
 colnames = ['P1_{}'.format(i) for i in basic_player_query_names] +\
            ['P2_{}'.format(i) for i in basic_player_query_names] +\
            ['M1_{}'.format(i) for i in individual_match_query_date_names] +\
@@ -688,7 +691,7 @@ def query_match_shared_DB(player_pair):
     return ret.mean().to_frame().transpose()
     #return DataFrame(np.atleast_2d(ret.mean().values),columns=colnames[34:49] + ['y'])
 
-
+"""
 
 #paired_query = DBQuery(query_player_ID_DB, (query_match_shared_DB,
 #                                            query_player_DB1, query_player_DB2,
