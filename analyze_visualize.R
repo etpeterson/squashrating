@@ -13,10 +13,11 @@ library(ggplot2)
 #library(reshape2)  #for melt
 #library(psych)
 #library(plyr)
-library(plotly)
+#library(plotly)
+library(rbokeh)
 
-
-setwd("/Users/epeterson/Documents/RaspberryPi/squash")
+wd <- "/Users/epeterson/Documents/RaspberryPi/squash"
+setwd(wd)
 
 #load the player database
 dbname <- "sqlitedb_complete.sqlite"
@@ -50,3 +51,13 @@ gplt <- ggplot(data=EloNames[EloNames$Player_ID %in% seq(1,20),],
 gplt <- gplt + geom_line() + geom_point()
 gplt <- gplt + scale_x_date()
 print(gplt)
+
+fig <- figure(data=EloNames[EloNames$Player_ID %in% seq(1,20),], 
+              width=1000, 
+              height=600,
+              legend_location="bottom_right" )
+fig <- ly_lines(fig, x=Date, y=Rating, color=name)
+fig <- ly_points(fig, x=Date, y=Rating, color=name, 
+                 hover=list(name, Date, Rating))
+print(fig)
+rbokeh2html(fig, paste(wd, "/ratingplot_R.html", sep=""))
