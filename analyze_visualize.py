@@ -14,6 +14,9 @@ from Database import DBQuery, ratingDB, query_player_ID_fast, \
     query_function_fast, fast_colnames
 #import datetime
 import pandas as pd
+#import plotly.plotly as pt
+#import plotly.graph_objs as go
+#import cufflinks as cf
 
 playerdb_fname = 'sqlitedb_complete.sqlite'
 paired_query = DBQuery(query_player_ID_fast, query_function_fast,
@@ -33,12 +36,8 @@ rating_DB = ratingDB(matches=paired_query.matches, database_name=ratingdb_fname)
 #print('Elo done')
 
 #TODO: customize the hover tool!
-hover = HoverTool()
-#hover = HoverTool(tooltips=[
-#    ("index", "$index"),
-#    ("(x,y)", "($x, $y)"),
-#    ("desc", "@desc"),
-#])
+#hover = HoverTool()
+
 
 inferno_palette = pa.inferno(len(player_plot_IDs))
 ratings_all = []
@@ -59,8 +58,17 @@ for ID in enumerate(player_plot_IDs):
     #print(dates, ratings, labelstr)
 df = pd.DataFrame(ratings_all, columns=['Date', 'Rating', 'Name', 'Color'])
 df['Date'] = pd.to_datetime(df['Date'])
+df['DateStr'] = [x.strftime("%Y-%m-%d") for x in df['Date']]
 source = ColumnDataSource(df)
 
+hover = HoverTool(
+    names=["circle"],
+    tooltips=[
+    ("Date", "@DateStr"),
+    ("Rating", "@Rating"),
+    ("Name", "@Name")
+])
+hover.point_policy = 'snap_to_data'
 
 ##bc.Scatter(df, x='Dates', y='Rating', legend='Name')
 
@@ -74,10 +82,18 @@ for player in pd.unique(df['Name']):
     color = pd.unique(df.loc[df['Name'] == player, ['Color']]['Color'])[0]
     source_player = ColumnDataSource(df.loc[df['Name'] == player, ['Date', 'Rating', 'Color']])
     p.line(df_player['Date'].values, df_player['Rating'].values, line_color=color) #, source=source_player
-p.circle('Date', 'Rating', source=source, legend='Name', fill_color='Color')
+p.circle('Date', 'Rating', source=source, legend='Name', fill_color='Color', name="circle")
 p.legend.location = "bottom_right"
 p.legend.click_policy = "hide"
 bp.show(p)
 #bp.save(p, '/Users/epeterson/Documents/RaspberryPi/squash/ratingplot_Py.html')
+
+#let's try plotly
+#or not because it kinda forces online mode and wants payment
+#cf.go_offline()
+
+#pt.iplot(data)
+#df.iplot(world_readable=False)
+
 
 rating_DB.Close()
